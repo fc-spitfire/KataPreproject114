@@ -10,10 +10,11 @@ public class Util {
     private static final String URL = "jdbc:mysql://localhost:3306/mysql";
     public static Connection getConnection() {
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
             System.out.println("connected");
             return connection;
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
