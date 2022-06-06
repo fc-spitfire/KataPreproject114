@@ -20,9 +20,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        Session session = sessionFactory.openSession();
         Transaction transaction = null;
-        try (session) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.createNativeQuery(CREATE + TABLE).executeUpdate();
             transaction.commit();
@@ -36,9 +35,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        Session session = sessionFactory.openSession();
         Transaction transaction = null;
-        try (session) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.createNativeQuery("DROP TABLE IF EXISTS USERS").executeUpdate();
             transaction.commit();
@@ -52,9 +50,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Session session = sessionFactory.openSession();
         Transaction transaction = null;
-        try (session) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.save(new User(name, lastName, age));
             transaction.commit();
@@ -69,9 +66,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        Session session = sessionFactory.openSession();
         Transaction transaction = null;
-        try (session) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.delete(session.get(User.class, id));
             transaction.commit();
@@ -85,26 +81,26 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public List<User> getAllUsers() {
-        Session session = sessionFactory.openSession();
-        CriteriaQuery<User> criteriaQuery = session.getCriteriaBuilder().createQuery(User.class);
-        criteriaQuery.from(User.class);
-        Transaction transaction = session.beginTransaction();
-        List<User> userList = session.createQuery(criteriaQuery).getResultList();
-        try (session) {
+        Transaction transaction = null;
+        List<User> users = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            users = session.createNativeQuery("SELECT * FROM USERS", User.class).getResultList();
             transaction.commit();
-            return userList;
+            return users;
         } catch (HibernateException e) {
             e.printStackTrace();
-            transaction.rollback();
+            if (transaction != null) {
+                transaction.rollback();
+            }
         }
-        return userList;
+        return users;
     }
 
     @Override
     public void cleanUsersTable() {
-        Session session = sessionFactory.openSession();
         Transaction transaction = null;
-        try (session) {
+        try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.createNativeQuery("DELETE FROM USERS").executeUpdate();
             transaction.commit();
